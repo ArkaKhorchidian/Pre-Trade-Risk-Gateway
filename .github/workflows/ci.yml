@@ -1,0 +1,32 @@
+name: CI
+
+# Kept deliberately small: one job, only when code changes, cancelled when
+# superseded, hard time limit. README/doc edits never trigger a run.
+on:
+  push:
+    branches: [main]
+    paths: ['include/**', 'src/**', 'tests/**', 'tools/**', 'bench/**', 'CMakeLists.txt', '.github/workflows/**']
+  pull_request:
+    paths: ['include/**', 'src/**', 'tests/**', 'tools/**', 'bench/**', 'CMakeLists.txt', '.github/workflows/**']
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DRISKGATE_WERROR=ON
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Test (ASan + UBSan)
+        working-directory: build
+        run: ctest --output-on-failure

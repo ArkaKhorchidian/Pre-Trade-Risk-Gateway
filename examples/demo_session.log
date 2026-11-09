@@ -1,0 +1,20 @@
+# Demo order flow for riskgate_replay. Run with:
+#   ./build/riskgate_replay --config config/example.ini examples/demo_session.log
+#
+# Client -> gateway orders
+8=FIX.4.2|35=D|49=OMS|56=GW|11=ORD1|1=DESK1|55=AAPL|54=1|38=100|40=2|44=150.00|
+# Fat-fingered price: 1500.00 instead of 150.00
+8=FIX.4.2|35=D|49=OMS|56=GW|11=ORD2|1=DESK1|55=AAPL|54=1|38=100|40=2|44=1500.00|
+# Restricted list
+8=FIX.4.2|35=D|49=OMS|56=GW|11=ORD3|1=DESK1|55=GME|54=1|38=10|40=2|44=20.00|
+# Size above the per-symbol cap (MSFT max_order_qty = 5000)
+8=FIX.4.2|35=D|49=OMS|56=GW|11=ORD4|1=DESK1|55=MSFT|54=2|38=6000|40=2|44=420.00|
+# Would trade against our own resting bid at 150.00
+8=FIX.4.2|35=D|49=OMS|56=GW|11=ORD5|1=DESK1|55=AAPL|54=2|38=50|40=2|44=149.00|
+# Reused ClOrdID
+8=FIX.4.2|35=D|49=OMS|56=GW|11=ORD1|1=DESK1|55=AAPL|54=1|38=100|40=2|44=150.00|
+# Market order while market orders are disabled
+8=FIX.4.2|35=D|49=OMS|56=GW|11=ORD6|1=DESK1|55=AAPL|54=1|38=100|40=1|
+# Venue -> client execution reports
+8=FIX.4.2|35=8|49=GW|56=OMS|11=ORD1|150=0|39=0|
+8=FIX.4.2|35=8|49=GW|56=OMS|11=ORD1|150=2|39=2|32=100|31=150.02|14=100|151=0|
